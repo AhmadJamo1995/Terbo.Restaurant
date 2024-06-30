@@ -1,0 +1,6 @@
+@Terbo.Restaurant.Web_HostAddress = http://localhost:5290
+
+GET {{Terbo.Restaurant.Web_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
