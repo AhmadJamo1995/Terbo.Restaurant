@@ -10,7 +10,13 @@ namespace Terbo.Restaurant.Web.AutoMapper
         {
             CreateMap<Meal, MealDto>();
             CreateMap<Meal , MealDetailsDto>();
-            CreateMap<Meal , CreateUpdateMealDto>().ReverseMap();
+            CreateMap<CreateUpdateMealDto, Meal>();
+
+            CreateMap<Meal, CreateUpdateMealDto>()
+                .ForMember(
+                        createUpdateMealDto => createUpdateMealDto.IngredientIds,
+                    opts => opts
+                        .MapFrom(meal => meal.Ingredients.Select(ingredient => ingredient.Id)));
         }
     }
 }

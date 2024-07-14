@@ -17,5 +17,6 @@ namespace Dtos.Order
         public decimal TotalPrice { get; set; }
         public string Notes { get; set; }
         public int CustomerId { get; set; }
+        public string CustomerFullName { get; set; }
     }
 }

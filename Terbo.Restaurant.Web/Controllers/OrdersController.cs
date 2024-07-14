@@ -7,36 +7,39 @@ using Dtos.Order;
 
 namespace Terbo.Restaurant.Web.Controllers
 {
-    #region Data and Const
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class OrdersController : ControllerBase
     {
+
+        #region Data and Const
+
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
 
-        public OrdersController(AppDbContext context , IMapper mapper)
+        public OrdersController(AppDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
+
         #endregion
-        #region Methods
-        // GET: api/Orders
+
+        #region Actions
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrders()
         {
             var order = await _context
                               .Orders
-                              .Include(o => o.Meals)
                               .Include(o => o.Customer)
                               .ToListAsync();
+
             var orderDtos = _mapper.Map<List<OrderDto>>(order);
 
             return Ok(orderDtos);
         }
 
-        // GET: api/Orders/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Order>> GetOrder(int id)
         {
@@ -46,18 +49,30 @@ namespace Terbo.Restaurant.Web.Controllers
             {
                 return NotFound();
             }
-            order.TotalPrice = GetOrderTotalPrice(order.Meals);
+
 
             var orderDto = _mapper.Map<OrderDetailsDto>(order);
 
             return Ok(orderDto);
         }
 
-        
+        [HttpPost]
+        public async Task<ActionResult<Order>> CreateOrder(CreateUpdateOrderDto createUpdateOrderDto)
+        {
+            var order = _mapper.Map<Order>(createUpdateOrderDto);
 
-        // PUT: api/Orders/
+            await UpdateOrderMeals(order, createUpdateOrderDto.MealIds);
+
+            order.TotalPrice = GetTotalPrice(order);
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(int id, CreateUpdateOrderDto createUpdateOrderDto)
+        public async Task<IActionResult> EditOrder(int id, CreateUpdateOrderDto createUpdateOrderDto)
         {
             if (id != createUpdateOrderDto.Id)
             {
@@ -66,7 +81,16 @@ namespace Terbo.Restaurant.Web.Controllers
 
             var order = await _context.Orders.FindAsync(id);
 
+            if (order == null)
+            {
+                return NotFound();
+            }
+
             _mapper.Map(createUpdateOrderDto, order);
+
+            await UpdateOrderMeals(order, createUpdateOrderDto.MealIds);
+
+            order.TotalPrice = GetTotalPrice(order);
 
             try
             {
@@ -103,18 +127,7 @@ namespace Terbo.Restaurant.Web.Controllers
 
             return orderDto;
         }
-        // POST: api/Orders
-        [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(CreateUpdateOrderDto createUpdateOrderDto)
-        {
-            var order = _mapper.Map<Order>(createUpdateOrderDto);
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
 
-            return Ok();
-        }
-
-        // DELETE: api/Orders/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
@@ -128,17 +141,31 @@ namespace Terbo.Restaurant.Web.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
+        } 
+
         #endregion
+
         #region Private
         private bool OrderExists(int id)
         {
             return _context.Orders.Any(e => e.Id == id);
         }
 
-        private decimal GetOrderTotalPrice(List<Meal> meals)
+        private async Task UpdateOrderMeals(Order order, List<int> mealIds)
         {
-            return meals.Sum(m => m.Price);
+            order.Meals.Clear();
+
+            var meals = await _context
+                                .Meals
+                                .Where(i => mealIds.Contains(i.Id))
+                                .ToListAsync();
+
+            order.Meals.AddRange(meals);
+        }
+
+        private decimal GetTotalPrice(Order order)
+        {
+            return order.Meals.Sum(e => e.Price);
         }
 
         #endregion

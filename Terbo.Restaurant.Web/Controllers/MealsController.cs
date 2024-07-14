@@ -8,41 +8,41 @@ using Dtos.LookUp;
 
 namespace Terbo.Restaurant.Web.Controllers
 {
-    #region Data and Const
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class MealsController : ControllerBase
     {
+        #region Data and Const
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
 
-        public MealsController(AppDbContext context , IMapper mapper)
+        public MealsController(AppDbContext context, IMapper mapper)
         {
             _context = context;
-           _mapper = mapper;
+            _mapper = mapper;
         }
         #endregion
+
         #region Methods
-        // GET: api/Meals
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MealDto>>> GetMeals()
         {
-           var meal = await _context
-                            .Meals
-                            .ToListAsync();
+            var meal = await _context
+                             .Meals
+                             .ToListAsync();
 
             var mealDtos = _mapper.Map<List<MealDto>>(meal);
-            
+
             return Ok(mealDtos);
         }
 
-        // GET: api/Meals/5
         [HttpGet("{id}")]
         public async Task<ActionResult<MealDetailsDto>> GetMeal(int id)
         {
             var meal = await _context
                              .Meals
-                             .Include( m => m.Ingredients)
+                             .Include(m => m.Ingredients)
                              .Where(o => o.Id == id)
                              .SingleOrDefaultAsync();
 
@@ -59,6 +59,7 @@ namespace Terbo.Restaurant.Web.Controllers
         {
             var meal = await _context
                                     .Meals
+                                    .Include(meal => meal.Ingredients)
                                     .Where(m => m.Id == id)
                                     .SingleOrDefaultAsync();
 
@@ -72,7 +73,6 @@ namespace Terbo.Restaurant.Web.Controllers
             return mealDto;
         }
 
-        // PUT: api/Meals/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMeal(int id, CreateUpdateMealDto createUpdateMealDto)
         {
@@ -104,20 +104,18 @@ namespace Terbo.Restaurant.Web.Controllers
             return NoContent();
         }
 
-        // POST: api/Meals
         [HttpPost]
         public async Task<ActionResult<Meal>> PostMeal(CreateUpdateMealDto createUpdateMealDto)
         {
             var meal = _mapper.Map<Meal>(createUpdateMealDto);
             await UpdateMealIngredients(meal, createUpdateMealDto.IngredientIds);
-             meal.Price = await GetMealPriceAsync(createUpdateMealDto.IngredientIds);
+            meal.Price = await GetMealPriceAsync(createUpdateMealDto.IngredientIds);
             _context.Meals.Add(meal);
             await _context.SaveChangesAsync();
 
             return Ok();
         }
 
-        // DELETE: api/Meals/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMeal(int id)
         {
@@ -147,6 +145,7 @@ namespace Terbo.Restaurant.Web.Controllers
             return mealLookup;
         }
         #endregion
+
         #region Private
         private bool MealExists(int id)
         {
