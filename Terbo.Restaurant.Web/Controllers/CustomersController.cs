@@ -70,7 +70,7 @@ namespace Terbo.Restaurant.Web.Controllers
         }
         // PUT: api/Customers/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCustomer(int id, CreateUpdateCustomerDto createUpdateCustomerDto)
+        public async Task<IActionResult> UpdateCustomer(int id, CreateUpdateCustomerDto createUpdateCustomerDto)
         {
             if (id != createUpdateCustomerDto.Id)
             {
@@ -101,7 +101,7 @@ namespace Terbo.Restaurant.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Customer>> PostCustomer(CreateUpdateCustomerDto createUpdateCustomerDto)
+        public async Task<ActionResult<Customer>> CreateCustomer(CreateUpdateCustomerDto createUpdateCustomerDto)
         {
             var customer = _mapper.Map<Customer>(createUpdateCustomerDto);
 

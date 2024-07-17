@@ -58,7 +58,7 @@ namespace Terbo.Restaurant.Web.Controllers
 
             // PUT: api/Ingredients/5
             [HttpPut("{id}")]
-         public async Task<IActionResult> PutIngredient(int id, IngredientDto ingredientDto)
+         public async Task<IActionResult> UpdateIngredient(int id, IngredientDto ingredientDto)
         {
             if (id != ingredientDto.Id)
             {
@@ -89,7 +89,7 @@ namespace Terbo.Restaurant.Web.Controllers
 
         // POST: api/Ingredients
         [HttpPost]
-        public async Task<ActionResult<Ingredient>> PostIngredient(IngredientDto ingredientDto)
+        public async Task<ActionResult<Ingredient>> CreateIngredient(IngredientDto ingredientDto)
         {
             var ingredient = _mapper.Map<Ingredient>(ingredientDto);
 
