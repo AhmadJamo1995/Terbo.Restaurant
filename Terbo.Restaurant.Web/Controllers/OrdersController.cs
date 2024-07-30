@@ -43,7 +43,12 @@ namespace Terbo.Restaurant.Web.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Order>> GetOrder(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _context
+                             .Orders
+                             .Include(o => o.Customer)
+                             .Include(o => o.Meals)
+                             .Where(o => o.Id == id)
+                             .SingleOrDefaultAsync();
 
             if (order == null)
             {
@@ -79,7 +84,11 @@ namespace Terbo.Restaurant.Web.Controllers
                 return BadRequest();
             }
 
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _context
+                                .Orders
+                                .Include(o => o.Meals)
+                                .Where(o => o.Id == id)
+                                .SingleOrDefaultAsync();
 
             if (order == null)
             {
@@ -115,6 +124,7 @@ namespace Terbo.Restaurant.Web.Controllers
         {
             var order = await _context
                                     .Orders
+                                    .Include(o => o.Meals)
                                     .Where(o => o.Id == id)
                                     .SingleOrDefaultAsync();
 
@@ -141,7 +151,7 @@ namespace Terbo.Restaurant.Web.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        } 
+        }
 
         #endregion
 
@@ -165,7 +175,9 @@ namespace Terbo.Restaurant.Web.Controllers
 
         private decimal GetTotalPrice(Order order)
         {
-            return order.Meals.Sum(e => e.Price);
+            var totalPrice = order.Meals.Sum(e => e.Price);
+            var totalPriceWithTax = totalPrice * 1.4m;
+            return totalPriceWithTax;
         }
 
         #endregion

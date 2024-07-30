@@ -20,7 +20,7 @@ namespace Entities
         public DateTime DateOfBirth { get; set; }
         public string Country { get; set; }
 
-        public List<Order> Orders { get; set; }
+        public List<Order> Orders { get; set; } = [];
 
         
 

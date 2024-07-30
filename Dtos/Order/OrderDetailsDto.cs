@@ -16,7 +16,8 @@ namespace Dtos.Order
         [Column(TypeName = "decimal(10,2)")]
         public decimal TotalPrice { get; set; }
         public string Notes { get; set; }
-        public int CustomerId { get; set; }
+        public string CustomerFullName { get; set; }
+
         public List<MealDto> Meals { get; set; }
     }
 }

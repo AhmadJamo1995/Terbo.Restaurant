@@ -16,7 +16,7 @@ namespace Entities
         [Column(TypeName = "decimal(10,2)")]
         public decimal Price { get; set; }
 
-        public List<Meal> Meals { get; set; }
+        public List<Meal> Meals { get; set; } = [];
 
 
         public string NameAndPrice

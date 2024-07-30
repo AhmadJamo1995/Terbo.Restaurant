@@ -18,6 +18,6 @@ namespace Entities
         public decimal Price { get; set; }
 
         public List<Ingredient> Ingredients { get; set; } = [];
-        public List<Order> Orders { get; set; }
+        public List<Order> Orders { get; set; } = [];
     }
 }
